@@ -34,20 +34,21 @@ int main(int argc,char *argv[])
     //Identifying the tokens 
     int ret;
     sing_char=fgetc(fp); //sing_char-->holds the single char from the file
+    int flag=0;
     while(sing_char!=EOF)
     {
         
         if(operator_check(fp)) {                      //checking if it is an operator  
             printf("%c ->  Operator\n",sing_char);
-            sing_char=fgetc(fp);
+           flag=1;
         }
         else if(preprocessor_dir_check(fp))       //checking if it is a preprocessor directive
         {
-             printf("%s  ->  Preprocessor directive\n",token);
+             printf(" %s ->  Preprocessor directive\n",token);
+             flag=2;
         }
-        else if((sing_char>=65&&sing_char<=90)||(sing_char>=97&&sing_char<=122)) //checking if the character is alphabet
+        else if((sing_char>=65&&sing_char<=90)||(sing_char>=97&&sing_char<=122)||sing_char=='_') //checking if the character is alphabet
         {
-            printf("in keyword check\n");
             //checking the type of token
             ret=keyword_check(fp);
             if(ret==1)
@@ -56,20 +57,34 @@ int main(int argc,char *argv[])
                 printf("%s  ->  Unreserved keyword\n",token);
             else
                 printf("%s  ->  Identifier\n",token);
+
+            flag=3;
         }
-        else if(sing_char==' ')
+        else if(sing_char==' '){
             while((sing_char=fgetc(fp))==' ');
-        else if(special_char_check(fp)){}
-        else if(const_check(fp))
+            flag=4;
+        }
+        else if(special_char_check(fp)){
+            flag=5;
+        }
+        else if(ret=const_check(fp))
         {
-            printf("%s -> Numeric constant",token);
+            if(ret==1)
+            printf("%s -> Numeric constant\n",token);
+            else 
+            printf("%s -> String literal constant\n",token);
+            
+            flag=6;
         }
         
         if(sing_char=='\n')
         while((sing_char=fgetc(fp))=='\n');
+        else if (flag==1||flag==5||flag==0)
+        sing_char=fgetc(fp);
         
-        printf("%c\n",sing_char);
+        //printf("%c\n",sing_char);
         
+        flag=0;//resetting flag so that again it can be identified whether if char pointer updation is needed
     }
     
 
